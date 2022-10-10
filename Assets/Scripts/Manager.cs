@@ -11,7 +11,7 @@ public class Manager : MonoBehaviour
     private const string PictureUrl = "https://picsum.photos/190";
     private const string DownloadingError = "ERROR DOWNLOADING PICTURES";
 
-    public Button randomChangeButton;
+    public CanvasGroup randomChangeButton;
     public Text loadingText;
     public RectTransform rootCanvasTransform;
     public Card cardPrefab;
@@ -24,15 +24,17 @@ public class Manager : MonoBehaviour
     private List<Action<Card, int>> _valueChangingDelegates;
     private Tweener _tweener;
 
+    private List<Card> _cardsToDiscard;
+
     private IEnumerator Start()
     {
-        const int minAttributeValue = 3;
-        const int maxAttributeValue = 10;
+        _cardsToDiscard = new List<Card>(1);
         
         randomChangeButton.gameObject.SetActive(false);
+        randomChangeButton.blocksRaycasts = false;
         loadingText.gameObject.SetActive(true);
 
-        _tweener = new Tweener(animSettings, positions);
+        _tweener = new Tweener(animSettings, positions, this);
         
         _valueChangingDelegates = new List<Action<Card, int>>
         {
@@ -51,16 +53,13 @@ public class Manager : MonoBehaviour
             if (true /*request.result == UnityWebRequest.Result.Success */)
             {
                 var card = Instantiate(cardPrefab, rootCanvasTransform);
+                card.Init(this);
                 card.gameObject.SetActive(false);
                 // var texture = DownloadHandlerTexture.GetContent(request);
                 // texture.filterMode = FilterMode.Point;
                 // card.backdrop.texture = texture;
                 card.CardName = RandomTextGenerator.GetRandomName();
                 card.Description = RandomTextGenerator.GetRandomDescription();
-
-                card.Mana = Random.Range(minAttributeValue, maxAttributeValue);
-                card.Attack = Random.Range(minAttributeValue, maxAttributeValue);
-                card.Health = Random.Range(minAttributeValue, maxAttributeValue);
                 
                 _cards.Add(card);
             }
@@ -72,22 +71,39 @@ public class Manager : MonoBehaviour
         }
         
         loadingText.gameObject.SetActive(false);
-        randomChangeButton.gameObject.SetActive(true);
 
         _tweener.TweenCardsIn(_cards);
     }
 
     public void OnButtonClicked()
     {
-        for (int i = 0; i < _cards.Count; i++)
+        randomChangeButton.blocksRaycasts = false;
+        StartCoroutine(ChangeCardValuesCoroutine());
+    }
+
+    private IEnumerator ChangeCardValuesCoroutine()
+    {
+        var cardsCount = _cards.Count;
+        var counterDelay = new WaitForSeconds(animSettings.valueChangeCardsDelay);
+        for (int i = 0; i < cardsCount; i++)
         {
             var card = _cards[i];
             var randomChanger = _valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
-            var randomValue = Random.Range(-2, 9); 
+            var randomValue = Random.Range(-2, 9);
             randomChanger(card, randomValue);
+            yield return counterDelay;
         }
-    }
 
+        for (int i = 0; i < _cardsToDiscard.Count; i++)
+        {
+            var card = _cardsToDiscard[i];
+            _cards.Remove(card);
+            _tweener.DiscardCard(card, _cards);
+        }
+
+        randomChangeButton.blocksRaycasts = true;
+    }
+    
     private void ChangeMana(Card card, int newValue)
     {
         card.Mana += newValue;

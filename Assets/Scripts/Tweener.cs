@@ -6,11 +6,13 @@ public class Tweener
 {
     private AnimationSettings _animSettings;
     private PositionStorage _positions;
+    private Manager _manager;
 
-    public Tweener(AnimationSettings animSettings, PositionStorage positions)
+    public Tweener(AnimationSettings animSettings, PositionStorage positions, Manager manager)
     {
         _animSettings = animSettings;
         _positions = positions;
+        _manager = manager;
     }
 
     public void TweenCardsIn(List<Card> cards)
@@ -51,9 +53,37 @@ public class Tweener
                           _animSettings.handMoveDelay * i;
 
             var handleIdlePosition = _positions.handIdlePosition.localPosition;
+
+            var normalizedIndexPosition = (float)i / (numOfCards - 1);
+            var normalizedSineValue = Mathf.Sin(Mathf.PI * normalizedIndexPosition);
+            handleIdlePosition.y += normalizedSineValue * _animSettings.arcHeight;
+            
             var handPosition = new Vector3(moveTo.x, handleIdlePosition.y, handleIdlePosition.z);
             anim.Insert(insertAtPos, card.rectTransform.DOLocalMove(handPosition, _animSettings.appearSpeed)
                 .SetEase(_animSettings.defaultEase));
+
+            var targetRotation = Vector3.zero;
+            var lift = _animSettings.sineArcLift;
+            var liftedNormalizedPosition = Mathf.Lerp(-1f + lift, 1f - lift, normalizedIndexPosition);
+            targetRotation.z = liftedNormalizedPosition * _animSettings.arcRotation;
+            
+            anim.Insert(insertAtPos, card.rectTransform.DORotate(targetRotation, _animSettings.appearSpeed)
+                .SetEase(_animSettings.defaultEase));
         }
+
+        anim.OnComplete(OnPlacingInHandCompleted);
+    }
+    
+    private void OnPlacingInHandCompleted()
+    {
+        var button = _manager.randomChangeButton;
+        button.alpha = 0f;
+        button.gameObject.SetActive(true);
+        button.DOFade(1f, _animSettings.appearSpeed);
+        button.blocksRaycasts = true;
+    }
+
+    public void DiscardCard(Card card, List<Card> remainingCards)
+    {
     }
 }

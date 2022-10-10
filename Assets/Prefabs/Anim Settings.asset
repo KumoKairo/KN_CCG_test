@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f7b99e8c2a13c748a301a45b621e8d5, type: 3}
   m_Name: Anim Settings
   m_EditorClassIdentifier: 
-  placingMargin: 8
+  placingMargin: 16
   defaultEase: 9
   appearSpeed: 1
   appearDelay: 0.5
+  appearIdle: 1
+  handMoveDelay: 0.15
+  arcHeight: 80
+  arcRotation: -15
+  sineArcLift: 0.2

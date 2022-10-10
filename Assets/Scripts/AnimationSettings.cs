@@ -10,4 +10,10 @@ public class AnimationSettings : ScriptableObject
     public float appearDelay = 1f;
     public float appearIdle = 1f;
     public float handMoveDelay = 0.1f;
+    public float arcHeight = 20f;
+    public float arcRotation = 15f;
+    public float valueChangeCardsDelay = 1f;
+    
+    [Range(0f, 1f)]
+    public float sineArcLift = 0.2f;
 }
