@@ -102,6 +102,7 @@ public class Manager : MonoBehaviour
 
         _cards.RemoveAll(card => _cardsToDiscard.Contains(card));
         _tweener.DiscardCards(_cardsToDiscard, _cards);
+        _cardsToDiscard.Clear();
 
         randomChangeButton.blocksRaycasts = true;
     }
