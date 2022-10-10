@@ -16,8 +16,12 @@ public class Manager : MonoBehaviour
     public RectTransform rootCanvasTransform;
     public Card cardPrefab;
 
+    [Space]
+    public RectTransform handStartPosition;
+
     private List<Card> _cards;
     private List<Action<Card, int>> _valueChangingDelegates;
+    private Tweener _tweener;
 
     private IEnumerator Start()
     {
@@ -25,8 +29,11 @@ public class Manager : MonoBehaviour
         const int maxAttributeValue = 10;
         
         randomChangeButton.gameObject.SetActive(false);
+        loadingText.gameObject.SetActive(true);
 
-        _valueChangingDelegates = new List<Action<Card, int>>()
+        _tweener = new Tweener();
+        
+        _valueChangingDelegates = new List<Action<Card, int>>
         {
             ChangeMana,
             ChangeAttack,
@@ -66,17 +73,7 @@ public class Manager : MonoBehaviour
         loadingText.gameObject.SetActive(false);
         randomChangeButton.gameObject.SetActive(true);
 
-        var floorHalfNumOfCards = numOfCards / 2;
-        var isOdd = 1 - numOfCards % 2;
-        var cardWidth = cardPrefab.rectTransform.rect.width;
-        var offset = floorHalfNumOfCards * cardWidth - cardWidth * isOdd * 0.5f;
-        for (int i = 0; i < numOfCards; i++)
-        {
-            var card = _cards[i];
-            var newX = i * cardWidth - offset;
-            card.rectTransform.localPosition = new Vector3(newX, 0f, 0f);
-            card.gameObject.SetActive(true);
-        }
+        _tweener.TweenCardsIn(_cards, handStartPosition);
     }
 
     public void OnButtonClicked()
@@ -85,7 +82,7 @@ public class Manager : MonoBehaviour
         {
             var card = _cards[i];
             var randomChanger = _valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
-            var randomValue = Random.Range(-2, 9); // Not clear if 9 should be included or not, so let's not
+            var randomValue = Random.Range(-2, 9); 
             randomChanger(card, randomValue);
         }
     }
