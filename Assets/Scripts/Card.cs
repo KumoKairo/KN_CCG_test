@@ -1,12 +1,13 @@
-using System.Collections;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     public CanvasGroup canvasGroup;
     public RectTransform rectTransform;
+    public Image outerGlow;
     public Text manaText;
     public Text attackText;
     public Text healthText;
@@ -18,6 +19,9 @@ public class Card : MonoBehaviour
     private int _attack;
     private int _health;
     private Manager _manager;
+
+    private Quaternion _preDragRotation;
+    private Vector3 _preDragPosition;
 
     public string CardName
     {
@@ -87,5 +91,35 @@ public class Card : MonoBehaviour
         
         textToChange.DOCounter(oldValue, newValue, _manager.animSettings.valueChangeCardsDelay);
         textToChange.rectTransform.DOShakePosition(_manager.animSettings.punchDuration, _manager.animSettings.punchStrength);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+         RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _manager.rootCanvasTransform, eventData.position, _manager.rootCanvas.worldCamera,
+            out var projectedPosition);
+
+        rectTransform.localPosition = projectedPosition;
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        canvasGroup.blocksRaycasts = false;
+        _manager.OnStartEndDrag(true);
+        _preDragRotation = rectTransform.rotation;
+        _preDragPosition = rectTransform.position;
+        rectTransform.DORotate(Vector3.zero, _manager.animSettings.dragRotationSpeed)
+            .SetEase(_manager.animSettings.defaultEase);
+        outerGlow.DOFade(1f, _manager.animSettings.dragRotationSpeed);
+
+        _manager.RepositionCardsExcept(this);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        canvasGroup.blocksRaycasts = true;
+        _manager.OnStartEndDrag(false);
+        outerGlow.DOFade(0f, _manager.animSettings.dragRotationSpeed);
+        _manager.RepositionCardsExcept(null);
     }
 }

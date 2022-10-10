@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -12,7 +11,9 @@ public class Manager : MonoBehaviour
     private const string DownloadingError = "ERROR DOWNLOADING PICTURES";
 
     public CanvasGroup randomChangeButton;
+    public Image dropArea;
     public Text loadingText;
+    public Canvas rootCanvas;
     public RectTransform rootCanvasTransform;
     public Card cardPrefab;
 
@@ -25,11 +26,10 @@ public class Manager : MonoBehaviour
     private Tweener _tweener;
 
     private List<Card> _cardsToDiscard;
+    private List<Card> _cardsToReposition;
 
     private IEnumerator Start()
     {
-        _cardsToDiscard = new List<Card>(1);
-        
         randomChangeButton.gameObject.SetActive(false);
         randomChangeButton.blocksRaycasts = false;
         loadingText.gameObject.SetActive(true);
@@ -44,6 +44,9 @@ public class Manager : MonoBehaviour
         };
 
         var numOfCards = Random.Range(4, 7);
+        _cardsToDiscard = new List<Card>(1);
+        _cardsToReposition = new List<Card>(numOfCards);
+
         _cards = new List<Card>(numOfCards);
         
         for (int i = 0; i < numOfCards; i++)
@@ -79,6 +82,26 @@ public class Manager : MonoBehaviour
     {
         randomChangeButton.blocksRaycasts = false;
         StartCoroutine(ChangeCardValuesCoroutine());
+    }
+    
+    public void RepositionCardsExcept(Card card)
+    {
+        _cardsToReposition.Clear();
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            if (card != _cards[i])
+            {
+                _cardsToReposition.Add(_cards[i]);
+            }
+        }
+
+        _tweener.RepositionCards(_cardsToReposition);
+    }
+
+    public void OnStartEndDrag(bool isStart)
+    {
+        var targetDropAreaAlpha = isStart ? 1f : 0f;
+        _tweener.FadeImage(dropArea, targetDropAreaAlpha);
     }
 
     private IEnumerator ChangeCardValuesCoroutine()

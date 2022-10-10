@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Tweener
 {
@@ -119,6 +120,11 @@ public class Tweener
             return;
         }
 
+        RepositionCards(remainingCards);
+    }
+
+    public void RepositionCards(List<Card> remainingCards)
+    {
         var numOfCards = remainingCards.Count;
         var cardWidth = remainingCards[0].rectTransform.rect.width;
         var offset = CalculateOffset(numOfCards, cardWidth);
@@ -131,5 +137,10 @@ public class Tweener
             moveTo.x = AdjustedArcPosition(i, cardWidth, offset);
             PlaceCardOnArc(anim, 0f, card, moveTo, numOfCards, i);
         }
+    }
+
+    public void FadeImage(Image image, float targetAlpha)
+    {
+        image.DOFade(targetAlpha, _animSettings.appearSpeed);
     }
 }
