@@ -95,13 +95,21 @@ public class Manager : MonoBehaviour
             }
         }
 
-        _tweener.RepositionCards(_cardsToReposition);
+        if (_cardsToReposition.Count > 0)
+        {
+            _tweener.RepositionCards(_cardsToReposition);
+        }
     }
 
     public void OnStartEndDrag(bool isStart)
     {
         var targetDropAreaAlpha = isStart ? 1f : 0f;
         _tweener.FadeImage(dropArea, targetDropAreaAlpha);
+    }
+
+    public void RemoveCardFromHand(Card card)
+    {
+        _cards.Remove(card);
     }
 
     private IEnumerator ChangeCardValuesCoroutine()

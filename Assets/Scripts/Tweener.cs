@@ -23,7 +23,7 @@ public class Tweener
         var anim = DOTween.Sequence();
 
         var cardWidth = cards[0].rectTransform.rect.width;
-        var offset = CalculateOffset(numOfCards, cardWidth);
+        var offset = CalculateOffset(numOfCards, cardWidth, _animSettings.placingMargin);
 
         for (int i = 0; i < numOfCards; i++)
         {
@@ -36,7 +36,7 @@ public class Tweener
 
             var insertAtPos = i * _animSettings.appearDelay;
             var moveTo = _positions.handAppearPosition.localPosition;
-            moveTo.x = AdjustedArcPosition(i, cardWidth, offset);
+            moveTo.x = ShiftedPosition(i, cardWidth, offset, _animSettings.placingMargin);
 
             anim.Insert(insertAtPos,
                 card.rectTransform.DOLocalMove(moveTo,
@@ -56,17 +56,17 @@ public class Tweener
         anim.OnComplete(OnPlacingInHandCompleted);
     }
 
-    private float AdjustedArcPosition(int index, float cardWidth, float offset)
+    public static float ShiftedPosition(int index, float cardWidth, float offset, float margin)
     {
-        return index * cardWidth + index * _animSettings.placingMargin - offset;
+        return index * cardWidth + index * margin - offset;
     }
 
-    private float CalculateOffset(int numOfCards, float cardWidth)
+    public static float CalculateOffset(int numOfCards, float cardWidth, float margin)
     {
         var floorHalfNumOfCards = numOfCards / 2;
         var isOdd = 1 - numOfCards % 2;
         var offset = floorHalfNumOfCards * cardWidth - cardWidth * isOdd * 0.5f +
-                     _animSettings.placingMargin * floorHalfNumOfCards;
+                     margin * floorHalfNumOfCards;
         return offset;
     }
 
@@ -127,14 +127,14 @@ public class Tweener
     {
         var numOfCards = remainingCards.Count;
         var cardWidth = remainingCards[0].rectTransform.rect.width;
-        var offset = CalculateOffset(numOfCards, cardWidth);
+        var offset = CalculateOffset(numOfCards, cardWidth, _animSettings.placingMargin);
 
         var anim = DOTween.Sequence();
         for (int i = 0; i < numOfCards; i++)
         {
             var card = remainingCards[i];
             var moveTo = _manager.positions.handIdlePosition.localPosition;
-            moveTo.x = AdjustedArcPosition(i, cardWidth, offset);
+            moveTo.x = ShiftedPosition(i, cardWidth, offset, _animSettings.placingMargin);
             PlaceCardOnArc(anim, 0f, card, moveTo, numOfCards, i);
         }
     }

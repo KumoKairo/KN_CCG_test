@@ -22,6 +22,7 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
     private Quaternion _preDragRotation;
     private Vector3 _preDragPosition;
+    private bool _isPlaced;
 
     public string CardName
     {
@@ -93,6 +94,11 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
         textToChange.rectTransform.DOShakePosition(_manager.animSettings.punchDuration, _manager.animSettings.punchStrength);
     }
 
+    public void BecomePlaced()
+    {
+        _isPlaced = true;
+    }
+
     public void OnDrag(PointerEventData eventData)
     {
          RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -117,6 +123,11 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (_isPlaced)
+        {
+            return;
+        }
+        
         canvasGroup.blocksRaycasts = true;
         _manager.OnStartEndDrag(false);
         outerGlow.DOFade(0f, _manager.animSettings.dragRotationSpeed);
