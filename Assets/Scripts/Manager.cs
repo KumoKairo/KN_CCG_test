@@ -17,7 +17,8 @@ public class Manager : MonoBehaviour
     public Card cardPrefab;
 
     [Space]
-    public RectTransform handStartPosition;
+    public PositionStorage positions;
+    public AnimationSettings animSettings;
 
     private List<Card> _cards;
     private List<Action<Card, int>> _valueChangingDelegates;
@@ -31,7 +32,7 @@ public class Manager : MonoBehaviour
         randomChangeButton.gameObject.SetActive(false);
         loadingText.gameObject.SetActive(true);
 
-        _tweener = new Tweener();
+        _tweener = new Tweener(animSettings, positions);
         
         _valueChangingDelegates = new List<Action<Card, int>>
         {
@@ -39,21 +40,21 @@ public class Manager : MonoBehaviour
             ChangeAttack,
             ChangeHealth
         };
-        
+
         var numOfCards = Random.Range(4, 7);
         _cards = new List<Card>(numOfCards);
         
         for (int i = 0; i < numOfCards; i++)
         {
-            var request = UnityWebRequestTexture.GetTexture(PictureUrl);
-            yield return request.SendWebRequest();
-            if (request.result == UnityWebRequest.Result.Success)
+            // var request = UnityWebRequestTexture.GetTexture(PictureUrl);
+            // yield return request.SendWebRequest();
+            if (true /*request.result == UnityWebRequest.Result.Success */)
             {
-                var texture = DownloadHandlerTexture.GetContent(request);
-                texture.filterMode = FilterMode.Point;
                 var card = Instantiate(cardPrefab, rootCanvasTransform);
                 card.gameObject.SetActive(false);
-                card.backdrop.texture = texture;
+                // var texture = DownloadHandlerTexture.GetContent(request);
+                // texture.filterMode = FilterMode.Point;
+                // card.backdrop.texture = texture;
                 card.CardName = RandomTextGenerator.GetRandomName();
                 card.Description = RandomTextGenerator.GetRandomDescription();
 
@@ -73,7 +74,7 @@ public class Manager : MonoBehaviour
         loadingText.gameObject.SetActive(false);
         randomChangeButton.gameObject.SetActive(true);
 
-        _tweener.TweenCardsIn(_cards, handStartPosition);
+        _tweener.TweenCardsIn(_cards);
     }
 
     public void OnButtonClicked()
