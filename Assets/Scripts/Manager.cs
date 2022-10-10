@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -51,16 +52,16 @@ public class Manager : MonoBehaviour
         
         for (int i = 0; i < numOfCards; i++)
         {
-            // var request = UnityWebRequestTexture.GetTexture(PictureUrl);
-            // yield return request.SendWebRequest();
-            if (true /*request.result == UnityWebRequest.Result.Success */)
+            var request = UnityWebRequestTexture.GetTexture(PictureUrl);
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.Success)
             {
                 var card = Instantiate(cardPrefab, rootCanvasTransform);
                 card.Init(this);
                 card.gameObject.SetActive(false);
-                // var texture = DownloadHandlerTexture.GetContent(request);
-                // texture.filterMode = FilterMode.Point;
-                // card.backdrop.texture = texture;
+                var texture = DownloadHandlerTexture.GetContent(request);
+                texture.filterMode = FilterMode.Point;
+                card.backdrop.texture = texture;
                 card.CardName = RandomTextGenerator.GetRandomName();
                 card.Description = RandomTextGenerator.GetRandomDescription();
                 
@@ -86,6 +87,8 @@ public class Manager : MonoBehaviour
     
     public void RepositionCardsExcept(Card card)
     {
+        MakeCardsInteractable(false);
+        
         _cardsToReposition.Clear();
         for (int i = 0; i < _cards.Count; i++)
         {
@@ -111,16 +114,26 @@ public class Manager : MonoBehaviour
     {
         _cards.Remove(card);
     }
+    
+    public void MakeCardsInteractable(bool isInteractable)
+    {
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].MakeInteractable(isInteractable);
+        }
+    }
 
     private IEnumerator ChangeCardValuesCoroutine()
     {
+        MakeCardsInteractable(false);
+        
         var cardsCount = _cards.Count;
         var counterDelay = new WaitForSeconds(animSettings.valueChangeCardsDelay);
         for (int i = 0; i < cardsCount; i++)
         {
             var card = _cards[i];
-            var randomChanger = _valueChangingDelegates[2];//_valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
-            var randomValue = Random.Range(-10, -1);
+            var randomChanger = _valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
+            var randomValue = Random.Range(-2, 9); // Relative change, not absolute
             randomChanger(card, randomValue);
             
             if (card.Health < 1)
@@ -136,6 +149,7 @@ public class Manager : MonoBehaviour
         _cardsToDiscard.Clear();
 
         randomChangeButton.blocksRaycasts = true;
+        MakeCardsInteractable(true);
     }
     
     private void ChangeMana(Card card, int newValue)

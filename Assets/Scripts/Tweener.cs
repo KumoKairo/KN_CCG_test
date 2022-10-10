@@ -99,6 +99,8 @@ public class Tweener
         button.gameObject.SetActive(true);
         button.DOFade(1f, _animSettings.appearSpeed);
         button.blocksRaycasts = true;
+
+        _manager.MakeCardsInteractable(true);
     }
 
     public void DiscardCards(List<Card> cardsToDiscard, List<Card> remainingCards)
@@ -123,20 +125,25 @@ public class Tweener
         RepositionCards(remainingCards);
     }
 
-    public void RepositionCards(List<Card> remainingCards)
+    public void RepositionCards(List<Card> cards)
     {
-        var numOfCards = remainingCards.Count;
-        var cardWidth = remainingCards[0].rectTransform.rect.width;
+        var numOfCards = cards.Count;
+        var cardWidth = cards[0].rectTransform.rect.width;
         var offset = CalculateOffset(numOfCards, cardWidth, _animSettings.placingMargin);
 
         var anim = DOTween.Sequence();
         for (int i = 0; i < numOfCards; i++)
         {
-            var card = remainingCards[i];
+            var card = cards[i];
             var moveTo = _manager.positions.handIdlePosition.localPosition;
             moveTo.x = ShiftedPosition(i, cardWidth, offset, _animSettings.placingMargin);
             PlaceCardOnArc(anim, 0f, card, moveTo, numOfCards, i);
         }
+
+        anim.OnComplete(() =>
+        {
+            _manager.MakeCardsInteractable(true);
+        });
     }
 
     public void FadeImage(Image image, float targetAlpha)

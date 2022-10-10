@@ -69,6 +69,8 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
     public void Init(Manager manager)
     {
+        canvasGroup.blocksRaycasts = false;
+
         const int minAttributeValue = 3;
         const int maxAttributeValue = 10;
         
@@ -97,6 +99,7 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
     public void BecomePlaced()
     {
         _isPlaced = true;
+        outerGlow.DOFade(0f, _manager.animSettings.dragRotationSpeed);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -128,9 +131,13 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
             return;
         }
         
-        canvasGroup.blocksRaycasts = true;
         _manager.OnStartEndDrag(false);
         outerGlow.DOFade(0f, _manager.animSettings.dragRotationSpeed);
         _manager.RepositionCardsExcept(null);
+    }
+
+    public void MakeInteractable(bool isInteractable)
+    {
+        canvasGroup.blocksRaycasts = isInteractable;
     }
 }
