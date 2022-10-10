@@ -1,9 +1,11 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class Card : MonoBehaviour
 {
+    public CanvasGroup canvasGroup;
     public RectTransform rectTransform;
     public Text manaText;
     public Text attackText;
@@ -26,8 +28,9 @@ public class Card : MonoBehaviour
     {
         set
         {
-            StartCoroutine(CounterChangeValue(manaText, _mana, value));
+            var oldValue = _mana;
             _mana = value;
+            CounterChangeValue(manaText, oldValue, value);
         }
         get => _mana;
     }
@@ -36,8 +39,9 @@ public class Card : MonoBehaviour
     {
         set
         {
-            StartCoroutine(CounterChangeValue(attackText, _attack, value));
+            var oldValue = _attack;
             _attack = value;
+            CounterChangeValue(attackText, oldValue, value);
         }
         get => _attack;
     }
@@ -46,8 +50,9 @@ public class Card : MonoBehaviour
     {
         set
         {
-            StartCoroutine(CounterChangeValue(healthText, _health, value));
+            var oldValue = _health;
             _health = value;
+            CounterChangeValue(healthText, oldValue, value);
         }
         get => _health;
     }
@@ -73,17 +78,14 @@ public class Card : MonoBehaviour
         healthText.text = _health.ToString();
     }
 
-    private IEnumerator CounterChangeValue(Text textToChange, int oldValue, int newValue)
+    private void CounterChangeValue(Text textToChange, int oldValue, int newValue)
     {
-        var difference = newValue - oldValue;
-        var counterChangingSpeed = new WaitForSeconds(_manager.animSettings.valueChangeCardsDelay / difference);
-        var sign = Mathf.Sign(newValue);
-        var abs = Mathf.Abs(difference);
-
-        for (int i = 0; i < abs; i++)
+        if (oldValue == newValue)
         {
-            textToChange.text = $"{oldValue + i * sign}";
-            yield return counterChangingSpeed;
+            return;
         }
+        
+        textToChange.DOCounter(oldValue, newValue, _manager.animSettings.valueChangeCardsDelay);
+        textToChange.rectTransform.DOShakePosition(_manager.animSettings.punchDuration, _manager.animSettings.punchStrength);
     }
 }

@@ -88,18 +88,20 @@ public class Manager : MonoBehaviour
         for (int i = 0; i < cardsCount; i++)
         {
             var card = _cards[i];
-            var randomChanger = _valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
-            var randomValue = Random.Range(-2, 9);
+            var randomChanger = _valueChangingDelegates[2];//_valueChangingDelegates[Random.Range(0, _valueChangingDelegates.Count)];
+            var randomValue = Random.Range(-10, -1);
             randomChanger(card, randomValue);
+            
+            if (card.Health < 1)
+            {
+                _cardsToDiscard.Add(card);
+            }
+            
             yield return counterDelay;
         }
 
-        for (int i = 0; i < _cardsToDiscard.Count; i++)
-        {
-            var card = _cardsToDiscard[i];
-            _cards.Remove(card);
-            _tweener.DiscardCard(card, _cards);
-        }
+        _cards.RemoveAll(card => _cardsToDiscard.Contains(card));
+        _tweener.DiscardCards(_cardsToDiscard, _cards);
 
         randomChangeButton.blocksRaycasts = true;
     }

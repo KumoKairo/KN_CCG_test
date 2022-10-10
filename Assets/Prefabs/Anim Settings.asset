@@ -20,4 +20,7 @@ MonoBehaviour:
   handMoveDelay: 0.15
   arcHeight: 80
   arcRotation: -15
+  valueChangeCardsDelay: 2
+  punchStrength: 4
+  punchDuration: 1
   sineArcLift: 0.2

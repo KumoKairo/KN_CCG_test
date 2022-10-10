@@ -873,6 +873,7 @@ GameObject:
   - component: {fileID: 7359951612639008924}
   - component: {fileID: 7359951612639008923}
   - component: {fileID: -8923611034700628533}
+  - component: {fileID: 2559698630644394638}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -927,6 +928,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce620e4cc58a1534b8d3c7ce7232dae0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 2559698630644394638}
   rectTransform: {fileID: 7359951612639008924}
   manaText: {fileID: 3374342679001404798}
   attackText: {fileID: 7759711794800800147}
@@ -934,6 +936,18 @@ MonoBehaviour:
   cardName: {fileID: 8847851886569174969}
   description: {fileID: 6207251495276061137}
   backdrop: {fileID: 5289518212441382119}
+--- !u!225 &2559698630644394638
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7359951612639008925}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7359951612982227569
 GameObject:
   m_ObjectHideFlags: 0

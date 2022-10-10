@@ -83,7 +83,18 @@ public class Tweener
         button.blocksRaycasts = true;
     }
 
-    public void DiscardCard(Card card, List<Card> remainingCards)
+    public void DiscardCards(List<Card> cardsToDiscard, List<Card> remainingCards)
     {
+        for (int i = 0; i < cardsToDiscard.Count; i++)
+        {
+            var delay = _manager.animSettings.handMoveDelay * i;
+            var card = cardsToDiscard[i];
+            card.rectTransform.DOLocalMove(_manager.positions.cardDiscardPosition.localPosition,
+                _manager.animSettings.appearSpeed)
+                .SetDelay(delay);
+            card.canvasGroup.DOFade(0f, _manager.animSettings.appearSpeed)
+                .SetDelay(delay)
+                .OnComplete(() => Object.Destroy(card.gameObject));
+        }
     }
 }
